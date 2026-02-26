@@ -28,14 +28,18 @@ export function useSchedule(referenceDate) {
   useEffect(() => {
     if (!user) return;
     const ref = doc(db, "users", user.uid, "schedule", weekId);
-    const unsub = onSnapshot(ref, (snap) => {
-      if (snap.exists()) {
-        setWeekData({ id: snap.id, ...snap.data() });
-      } else {
-        setWeekData(emptyWeek(weekStart));
-      }
-      setLoading(false);
-    });
+    const unsub = onSnapshot(
+      ref,
+      (snap) => {
+        if (snap.exists()) {
+          setWeekData({ id: snap.id, ...snap.data() });
+        } else {
+          setWeekData(emptyWeek(weekStart));
+        }
+        setLoading(false);
+      },
+      () => setLoading(false)
+    );
     return unsub;
   }, [user, weekId]);
 

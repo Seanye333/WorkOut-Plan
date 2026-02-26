@@ -37,17 +37,20 @@ export function useWorkoutLog() {
     async (reset = false) => {
       if (!user) return;
       setLoading(true);
-      const ref = collection(db, "users", user.uid, "workoutLogs");
-      let q = query(ref, orderBy("loggedAt", "desc"), limit(PAGE_SIZE));
-      if (!reset && lastDoc) {
-        q = query(ref, orderBy("loggedAt", "desc"), startAfter(lastDoc), limit(PAGE_SIZE));
+      try {
+        const ref = collection(db, "users", user.uid, "workoutLogs");
+        let q = query(ref, orderBy("loggedAt", "desc"), limit(PAGE_SIZE));
+        if (!reset && lastDoc) {
+          q = query(ref, orderBy("loggedAt", "desc"), startAfter(lastDoc), limit(PAGE_SIZE));
+        }
+        const snap = await getDocs(q);
+        const newLogs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        setLogs((prev) => (reset ? newLogs : [...prev, ...newLogs]));
+        setLastDoc(snap.docs[snap.docs.length - 1] ?? null);
+        setHasMore(snap.docs.length === PAGE_SIZE);
+      } finally {
+        setLoading(false);
       }
-      const snap = await getDocs(q);
-      const newLogs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-      setLogs((prev) => (reset ? newLogs : [...prev, ...newLogs]));
-      setLastDoc(snap.docs[snap.docs.length - 1] ?? null);
-      setHasMore(snap.docs.length === PAGE_SIZE);
-      setLoading(false);
     },
     [user, lastDoc]
   );
