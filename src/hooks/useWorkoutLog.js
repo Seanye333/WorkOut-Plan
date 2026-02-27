@@ -62,5 +62,13 @@ export function useWorkoutLog() {
     fetchLogs(true);
   }, [fetchLogs]);
 
-  return { logs, loading, hasMore, createLog, loadMore, refresh };
+  const fetchAllLogs = useCallback(async () => {
+    if (!user) return [];
+    const ref = collection(db, "users", user.uid, "workoutLogs");
+    const q = query(ref, orderBy("loggedAt", "desc"));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  }, [user]);
+
+  return { logs, loading, hasMore, createLog, loadMore, refresh, fetchAllLogs };
 }

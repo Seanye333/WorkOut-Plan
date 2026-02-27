@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useWorkoutLog } from "../hooks/useWorkoutLog";
+import { useExercises } from "../hooks/useExercises";
+import { exportWorkoutsToExcel } from "../utils/exportToExcel";
 import Spinner from "../components/common/Spinner";
 import { formatLongDate } from "../utils/dateHelpers";
 
@@ -65,16 +67,43 @@ function LogEntry({ log }) {
 }
 
 export default function HistoryPage() {
-  const { logs, loading, hasMore, loadMore, refresh } = useWorkoutLog();
+  const { logs, loading, hasMore, loadMore, refresh, fetchAllLogs } = useWorkoutLog();
+  const { exercises } = useExercises();
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     refresh();
   }, []);
 
+  async function handleExport() {
+    setExporting(true);
+    try {
+      const allLogs = await fetchAllLogs();
+      exportWorkoutsToExcel(allLogs, exercises);
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-white">Workout History</h1>
+        {logs.length > 0 && (
+          <button
+            className="btn-secondary flex items-center gap-2"
+            onClick={handleExport}
+            disabled={exporting}
+          >
+            {exporting ? (
+              "Exporting…"
+            ) : (
+              <>
+                <span>⬇</span> Export Excel
+              </>
+            )}
+          </button>
+        )}
       </div>
 
       {loading && logs.length === 0 ? (

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import BackgroundSettings from "./BackgroundSettings";
 
 const links = [
   { to: "/", label: "Dashboard" },
@@ -8,6 +9,7 @@ const links = [
   { to: "/exercises", label: "Exercises" },
   { to: "/templates", label: "Templates" },
   { to: "/history", label: "History" },
+  { to: "/analytics", label: "Analytics" },
 ];
 
 export default function Navbar() {
@@ -28,7 +30,7 @@ export default function Navbar() {
     }`;
 
   return (
-    <nav className="bg-gray-900 border-b border-gray-800 sticky top-0 z-40">
+    <nav className="bg-gray-900/90 backdrop-blur-sm border-b border-gray-800 sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-14">
           {/* Logo */}
@@ -45,8 +47,9 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* User + logout (desktop) */}
+          {/* Right side: background + user + logout */}
           <div className="hidden md:flex items-center gap-3">
+            <BackgroundSettings />
             <span className="text-gray-400 text-sm">{user?.email}</span>
             <button onClick={handleLogout} className="btn-secondary text-sm py-1">
               Logout
@@ -54,19 +57,22 @@ export default function Navbar() {
           </div>
 
           {/* Hamburger (mobile) */}
-          <button
-            className="md:hidden text-gray-300 hover:text-white p-2"
-            onClick={() => setMenuOpen((o) => !o)}
-            aria-label="Toggle menu"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {menuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
+          <div className="md:hidden flex items-center gap-2">
+            <BackgroundSettings />
+            <button
+              className="text-gray-300 hover:text-white p-2"
+              onClick={() => setMenuOpen((o) => !o)}
+              aria-label="Toggle menu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {menuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
